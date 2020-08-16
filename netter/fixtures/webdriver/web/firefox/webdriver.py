@@ -1,10 +1,10 @@
 from selenium.webdriver import Firefox, DesiredCapabilities
 from selenium.webdriver import Remote
 
-from netter.fixtures.drivers import initial
-from netter.fixtures.drivers.web import BasePage
-from netter.fixtures.drivers.web.firefox.options import Options
-from netter.fixtures.drivers.web.firefox.profile import Profile
+from netter.fixtures.webdriver import initial
+from netter.fixtures.webdriver.web import BasePage
+from netter.fixtures.webdriver.web.firefox.options import Options
+from netter.fixtures.webdriver.web.firefox.profile import Profile
 
 
 class WebDriver(BasePage):

@@ -1,9 +1,9 @@
 from selenium.webdriver import Chrome, DesiredCapabilities
 from selenium.webdriver import Remote
 
-from netter.fixtures.drivers import initial
-from netter.fixtures.drivers.web import BasePage
-from netter.fixtures.drivers.web.chrome.options import Options
+from netter.fixtures.webdriver import initial
+from netter.fixtures.webdriver.web import BasePage
+from netter.fixtures.webdriver.web.chrome.options import Options
 
 
 class WebDriver(BasePage):

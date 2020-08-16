@@ -1,4 +1,4 @@
-from netter.fixtures.drivers import BaseWebDriver
+from netter.fixtures.webdriver import BaseWebDriver
 
 
 class BasePage(BaseWebDriver):

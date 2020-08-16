@@ -1,7 +1,7 @@
 from appium.webdriver import Remote
 
-from netter.fixtures.drivers import initial
-from netter.fixtures.drivers.app import BasePage
+from netter.fixtures.webdriver import initial
+from netter.fixtures.webdriver.app import BasePage
 
 driver_name = None
 
