@@ -132,11 +132,11 @@ class Element(object):
         if not self.in_view:
             self.scroll_into_view(stay=stay)
         self.highlight()
-        if self._driver.custom.driver_type == 'Selenium':
-            if self._driver.custom.driver_name in ['IE', 'Safari']:
+        if self._driver.custom.type == 'Selenium':
+            if self._driver.custom.name in ['IE', 'Safari']:
                 self._driver.execute_script('arguments[0].click();', self._element)
                 return
-        elif self._driver.custom.driver_type == 'Appium' and self._driver.custom.driver_name == 'Safari':
+        elif self._driver.custom.type == 'Appium' and self._driver.custom.name == 'Safari':
             if native_tap:
                 with self.native_tap():
                     self._element.click()

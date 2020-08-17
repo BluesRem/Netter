@@ -1,6 +1,6 @@
 import time
 
-from netter.fixtures import logging
+from netter.supper import logging
 
 
 class Wait(object):

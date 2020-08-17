@@ -1,6 +1,6 @@
 import random
 
-from .element import Element
+from netter.common.element import Element
 
 
 class Elements(object):
