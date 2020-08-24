@@ -2,8 +2,8 @@ from selenium.webdriver import ChromeOptions
 
 
 class Options(object):
-    def __init__(self, options: ChromeOptions):
-        self.options = options
+    def __init__(self, options: ChromeOptions = None):
+        self.options = options or ChromeOptions()
 
     @property
     def headless(self):
