@@ -1,9 +1,8 @@
 import time
 from contextlib import suppress
 
-from selenium.common.exceptions import StaleElementReferenceException
-
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 
 
 class BasePage(object):
@@ -23,14 +22,15 @@ class BasePage(object):
             return [element for element in elements if element.is_displayed()]
 
     def _element(self, selector):
-        parent = getattr(self, '_element', None) or self._driver
-        return parent.find_element(*selector.locator)
+        with suppress(NoSuchElementException):
+            parent = getattr(self, '_element', None) or self._driver
+            return parent.find_element(*selector.locator)
 
     def _elements(self, selector):
         parent = getattr(self, '_element', None) or self._driver
         return parent.find_elements(*selector.locator)
 
-    def find(self, selector, visible=None, wait_time=None):
+    def _find(self, selector, visible=None, wait_time=None):
         end_time = time.time() + (wait_time or selector.wait_time)
         while True:
             element = self._visible_element(selector) if visible else self._element(selector)
@@ -39,7 +39,7 @@ class BasePage(object):
             if time.time() > end_time:
                 raise NoSuchElementException('Not found element.')
 
-    def find_all(self, selector, visible=None, wait_time=None):
+    def _find_all(self, selector, visible=None, wait_time=None):
         end_time = time.time() + (wait_time or selector.wait_time)
         while True:
             elements = self._visible_elements(selector) if visible else self._elements(selector)
@@ -47,3 +47,23 @@ class BasePage(object):
                 return elements
             if time.time() > end_time:
                 raise NoSuchElementException('Not found elements.')
+
+    def assert_element_visible(self, selector):
+        if self._visible_element(selector):
+            return True
+        else:
+            return False
+
+    def assert_element_located(self, selector):
+        if self._element(selector):
+            return True
+        else:
+            return False
+
+    def assert_text_is(self, text, selector):
+        element = self._element(selector)
+        return text == element.text
+
+    def assert_attr_is(self, name, value, selector):
+        element = self._element(selector)
+        return value == element.get_attribute(name)
