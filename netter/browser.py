@@ -59,7 +59,7 @@ class GetBrowser(object):
             desired_capabilities = {
                 'Chrome': DesiredCapabilities.CHROME,
                 'Firefox': DesiredCapabilities.CHROME,
-            }
+            }[self._name]
             driver = self._driver.Remote(command_executor=command_executor, desired_capabilities=desired_capabilities,
                                          *args,
                                          **kwargs)
