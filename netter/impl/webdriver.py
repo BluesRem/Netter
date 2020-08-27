@@ -146,8 +146,8 @@ class WebDriver(BasePage):
 
     def find(self, selector, visible=None, wait_time=None):
         element = self._find(selector, visible, wait_time)
-        return Element(self._driver, element, self._selector)
+        return Element(self._driver, element, selector)
 
     def find_all(self, selector, visible=None, wait_time=None):
         elements = self._find_all(selector, visible, wait_time)
-        return Elements(self._driver, elements, self._selector)
+        return Elements(self._driver, elements, selector)

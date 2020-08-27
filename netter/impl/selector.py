@@ -15,6 +15,10 @@ class Selector(object):
         return self._by, self._value
 
     @property
+    def value(self):
+        return self._value
+
+    @property
     def describe(self):
         return self._describe
 
