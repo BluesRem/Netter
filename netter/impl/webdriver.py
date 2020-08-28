@@ -10,6 +10,7 @@ from netter.impl.cookies import Cookies
 from netter.impl.element import Element, Elements
 from netter.impl.scroll import Scroll
 from netter.impl.windows import Windows
+from netter.impl.wait import Wait
 
 
 class WebDriver(BasePage):
@@ -51,6 +52,10 @@ class WebDriver(BasePage):
 
     def reload(self):
         self._driver.refresh()
+
+    def waiting_for_load(self, wait_time=15):
+        if not Wait(wait_time).until(self.assert_page_loaded()):
+            self.stop()
 
     @staticmethod
     def wait(sec=1):
@@ -121,28 +126,85 @@ class WebDriver(BasePage):
         return self._driver.get_screenshot_as_base64()
 
     def assert_page_loaded(self):
-        return self._driver.execute_script('return document.readyState;') == 'complete'
+        class Wrapper:
+            outer_class = self
+
+            def __call__(self, *args, **kwargs):
+                return self.outer_class.execute_script('return document.readyState;') == 'complete'
+
+        return Wrapper()
 
     def assert_new_window_open(self, current_windows):
-        return len(current_windows) != len(self.windows)
+        class Wrapper:
+            outer_class = self
+
+            def __init__(self, *args):
+                self._current_windows, *_ = args
+
+            def __call__(self, *args, **kwargs):
+                return len(self._current_windows) != len(self.outer_class.windows)
+
+        return Wrapper(current_windows)
 
     def assert_alert_present(self):
-        with suppress(NoAlertPresentException):
-            alert = self._driver.switch_to.alert
-            return alert
-        return False
+        class Wrapper:
+            outer_class = self
+
+            def __call__(self, *args, **kwargs):
+                with suppress(NoAlertPresentException):
+                    alert = self.outer_class._driver.switch_to.alert
+                    return alert
+                return False
+
+        return Wrapper()
 
     def assert_url_contains(self, url):
-        return url in self.url
+        class Wrapper:
+            outer_class = self
+
+            def __init__(self, *args):
+                self._url, *_ = args
+
+            def __call__(self, *args, **kwargs):
+                return self._url in self.outer_class.url
+
+        return Wrapper(url)
 
     def assert_url_matches(self, pattern):
-        return re.search(pattern, self.url)
+        class Wrapper:
+            outer_class = self
+
+            def __init__(self, *args):
+                self._pattern, *_ = args
+
+            def __call__(self, *args, **kwargs):
+                return re.search(self._pattern, self.outer_class.url)
+
+        return Wrapper(pattern)
 
     def assert_url_is(self, url):
-        return url == self.url
+        class Wrapper:
+            outer_class = self
+
+            def __init__(self, *args):
+                self._url, *_ = args
+
+            def __call__(self, *args, **kwargs):
+                return self._url == self.outer_class.url
+
+        return Wrapper(url)
 
     def assert_url_changes(self, url):
-        return url != self.url
+        class Wrapper:
+            outer_class = self
+
+            def __init__(self, *args):
+                self._url, *_ = args
+
+            def __call__(self, *args, **kwargs):
+                return self._url != self.outer_class.url
+
+        return Wrapper(url)
 
     def find(self, selector, visible=None, wait_time=None):
         element = self._find(selector, visible, wait_time)

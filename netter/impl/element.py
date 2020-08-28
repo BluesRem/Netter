@@ -1,6 +1,7 @@
 import random
 import time
 from contextlib import contextmanager, suppress
+from typing import List
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
@@ -105,10 +106,12 @@ class Element(BasePage):
         """, self._element)
         return True if in_view else False
 
-    def highlight(self, clear=True):
+    def highlight(self, clear=True, screenshots_file=None):
         previous_style = self.attr('style')
         self._driver.execute_script('arguments[0].setAttribute("style", "border: 2px solid red; font-weight: bold;");',
                                     self._element)
+        if screenshots_file:
+            self._driver.get_img(screenshots_file)
         if clear:
             time.sleep(0.5)
             if previous_style:
@@ -190,23 +193,23 @@ class Elements(BasePage):
         self._selector = selector
 
     @property
-    def items(self):
+    def items(self) -> List[Element]:
         return [Element(self._driver, element, self._selector) for element in self._elements]
 
     @property
-    def first(self):
+    def first(self) -> Element:
         return self.items[0]
 
     @property
-    def last(self):
+    def last(self) -> Element:
         return self.items[-1]
 
     @property
-    def random(self):
+    def random(self) -> Element:
         return random.choice(self.items)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Element:
         return self.items[index]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._elements)

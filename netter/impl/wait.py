@@ -17,9 +17,9 @@ class Wait(object):
         while True:
             with Logger() as logger:
                 with suppress(*self._exceptions):
-                    if result := method(*args, **kwargs):
+                    if method(*args, **kwargs):
                         logger.ending = True
-                        return result
+                        return True
                 logger.ending = False
                 if time.time() > self._end_time:
                     logger.ending = True
@@ -33,9 +33,9 @@ class Wait(object):
         while True:
             with Logger() as logger:
                 with suppress(*self._exceptions):
-                    if not (result := method(*args, **kwargs)):
+                    if not method(*args, **kwargs):
                         logger.ending = True
-                        return result
+                        return True
                 logger.ending = False
                 if time.time() > self._end_time:
                     logger.ending = True
