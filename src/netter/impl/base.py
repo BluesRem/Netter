@@ -4,22 +4,12 @@ from contextlib import suppress
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 
+from src.netter.logging import Logger
+
 
 class BasePage(object):
     def __init__(self, driver):
         self._driver = driver
-
-    def _visible_element(self, selector):
-        elements = self._get_elements(selector)
-        with suppress(StaleElementReferenceException):
-            for element in elements:
-                if element.is_displayed():
-                    return element
-
-    def _visible_elements(self, selector):
-        elements = self._get_elements(selector)
-        with suppress(StaleElementReferenceException):
-            return [element for element in elements if element.is_displayed()]
 
     def _get_element(self, selector):
         with suppress(NoSuchElementException):
@@ -30,6 +20,18 @@ class BasePage(object):
         parent = getattr(self, '_element', None) or self._driver
         return parent.find_elements(*selector.locator)
 
+    def _visible_element(self, selector):
+        elements = self._get_elements(selector)
+        for element in elements:
+            with suppress(StaleElementReferenceException):
+                if element.is_displayed():
+                    return element
+
+    def _visible_elements(self, selector):
+        elements = self._get_elements(selector)
+        with suppress(StaleElementReferenceException):
+            return [element for element in elements if element.is_displayed()]
+
     def _find(self, selector, visible=None, wait_time=None):
         end_time = time.time() + (wait_time or selector.wait_time)
         while True:
@@ -37,7 +39,7 @@ class BasePage(object):
             if element:
                 return element
             if time.time() > end_time:
-                raise NoSuchElementException('Not found element.')
+                raise NoSuchElementException(f'找不到元素：{selector}')
 
     def _find_all(self, selector, visible=None, wait_time=None):
         end_time = time.time() + (wait_time or selector.wait_time)
@@ -46,7 +48,7 @@ class BasePage(object):
             if elements:
                 return elements
             if time.time() > end_time:
-                raise NoSuchElementException('Not found elements.')
+                raise NoSuchElementException(f'找不到元素：{selector}')
 
     def assert_element_visible(self, selector):
         class Wrapper:
@@ -86,8 +88,9 @@ class BasePage(object):
                 self._text, self._selector = args
 
             def __call__(self, *args, **kwargs):
-                element = self.outer_class._get_element(self._selector)
-                return self._text == element.text
+                _text = self.outer_class._get_element(self._selector).text
+                Logger.debug(f'判断元素{self._selector}的文本是否包含：{text}，当前文本为：{_text}')
+                return self._text == _text
 
         return Wrapper(text, selector)
 
@@ -99,7 +102,8 @@ class BasePage(object):
                 self._name, self._value, self._selector = args
 
             def __call__(self, *args, **kwargs):
-                element = self.outer_class._get_element(self._selector)
-                return self._value == element.get_attribute(name)
+                _value = self.outer_class._get_element(self._selector).get_attribute(name)
+                Logger.debug(f'判断元素{self._selector}的属性{name}是否包含：{value}，当前值为：{_value}')
+                return self._value == _value
 
         return Wrapper(name, value, selector)

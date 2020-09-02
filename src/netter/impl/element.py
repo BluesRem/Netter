@@ -3,10 +3,12 @@ import time
 from contextlib import contextmanager, suppress
 from typing import List
 
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
 
-from netter.impl.base import BasePage
+from src.netter.impl.base import BasePage
+from src.netter.logging import Logger
 
 
 class Element(BasePage):
@@ -29,10 +31,14 @@ class Element(BasePage):
 
     @property
     def text(self):
-        return self._element.text
+        text = self._element.text
+        Logger.debug(f'元素：{self._selector} 的文本为：{text}')
+        return text
 
     def attr(self, name):
-        return self._element.get_attribute(name=name)
+        value = self._element.get_attribute(name=name)
+        Logger.debug(f'元素：{self._selector} 的属性{name}值为：{value}')
+        return value
 
     @property
     def view_position(self) -> dict:
@@ -107,7 +113,7 @@ class Element(BasePage):
         return True if in_view else False
 
     def highlight(self, clear=True, screenshots_file=None):
-        previous_style = self.attr('style')
+        previous_style = self._element.get_attribute('style')
         self._driver.execute_script('arguments[0].setAttribute("style", "border: 2px solid red; font-weight: bold;");',
                                     self._element)
         if screenshots_file:
@@ -127,9 +133,11 @@ class Element(BasePage):
     @contextmanager
     def action_native_tap(self):
         if self._driver.attr.type == 'Appium':
+            Logger.debug('启动模拟真实点击')
             self._driver.update_settings({'nativeWebTap': True})
             with suppress(BaseException):
                 yield
+            Logger.debug('关闭模拟真实点击')
             self._driver.update_settings({'nativeWebTap': False})
         else:
             yield
@@ -138,6 +146,7 @@ class Element(BasePage):
         if not self.in_view:
             self.scroll_into_view(stay=stay)
         self.highlight()
+        Logger.debug(f'点击元素：{self._selector}')
         if self._driver.attr.type == 'Selenium':
             if self._driver.attr.name in ['IE', 'Safari']:
                 self._driver.execute_script('arguments[0].click();', self._element)
@@ -147,34 +156,43 @@ class Element(BasePage):
                 with self.action_native_tap():
                     self._element.click()
                 return
-        self._element.click()
+        try:
+            self._element.click()
+        except ElementClickInterceptedException:
+            self.scroll_into_view(stay=stay)
+            self._element.click()
 
     def input(self, value, clear=True, stay=0.5):
         if not self.in_view:
             self.scroll_into_view(stay=stay)
         self.highlight()
         if clear:
+            Logger.debug(f'清空输入框：{self._selector}')
             self._driver.execute_script('arguments[0].select();', self._element)
             self._element.send_keys(Keys.DELETE)
             time.sleep(0.5)
+        Logger.debug(f'元素：{self._selector} 输入：{value}')
         self._element.send_keys(value)
 
     def select_by_index(self, index):
         if not self.in_view:
             self.scroll_into_view()
         self.highlight()
+        Logger.debug(f'选择第{index}选项')
         Select(webelement=self._element).select_by_index(index=index)
 
     def select_by_value(self, value):
         if not self.in_view:
             self.scroll_into_view()
         self.highlight()
+        Logger.debug(f'选择值为{value}的选项')
         Select(webelement=self._element).select_by_value(value=value)
 
     def select_by_text(self, text):
         if not self.in_view:
             self.scroll_into_view()
         self.highlight()
+        Logger.debug(f'选择文本为：{text}的选项')
         Select(webelement=self._element).select_by_visible_text(text=text)
 
     def find(self, selector, visible=None, wait_time=None):

@@ -1,8 +1,7 @@
 import time
-
-from netter.logging import Logger
-
 from contextlib import suppress
+
+from src.netter.logging import Logger
 
 
 class Wait(object):
@@ -13,7 +12,6 @@ class Wait(object):
         self._message = message
 
     def until(self, method, *args, **kwargs):
-        Logger.debug('Wait for the result to be true')
         while True:
             with Logger() as logger:
                 with suppress(*self._exceptions):
@@ -29,7 +27,6 @@ class Wait(object):
                         return False
 
     def until_not(self, method, *args, **kwargs):
-        Logger.debug('Wait for the result to be false')
         while True:
             with Logger() as logger:
                 with suppress(*self._exceptions):

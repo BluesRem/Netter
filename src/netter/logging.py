@@ -48,31 +48,31 @@ class Logger(object):
 
     @classmethod
     def trace(cls, message, *args, **kwargs):
-        cls._log(5, message, *args, **kwargs)
+        cls._log('TRACE', message, *args, **kwargs)
 
     @classmethod
     def debug(cls, message, *args, **kwargs):
-        cls._log(10, message, *args, **kwargs)
+        cls._log('DEBUG', message, *args, **kwargs)
 
     @classmethod
     def info(cls, message, *args, **kwargs):
-        cls._log(20, message, *args, **kwargs)
+        cls._log('INFO', message, *args, **kwargs)
 
     @classmethod
     def success(cls, message, *args, **kwargs):
-        cls._log(25, message, *args, **kwargs)
+        cls._log('SUCCESS', message, *args, **kwargs)
 
     @classmethod
     def warning(cls, message, *args, **kwargs):
-        cls._log(30, message, *args, **kwargs)
+        cls._log('WARNING', message, *args, **kwargs)
 
     @classmethod
     def error(cls, message, *args, **kwargs):
-        cls._log(40, message, *args, **kwargs)
+        cls._log('ERROR', message, *args, **kwargs)
 
     @classmethod
     def critical(cls, message, *args, **kwargs):
-        cls._log(50, message, *args, **kwargs)
+        cls._log('CRITICAL', message, *args, **kwargs)
 
     @classmethod
     def _log(cls, level, message, *args, **kwargs):
